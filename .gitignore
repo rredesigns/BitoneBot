@@ -6,6 +6,8 @@
 *.o
 *.pm.tdy
 *.bs
+*.key
+*.json
 
 # Devel::Cover
 cover_db/

@@ -124,24 +124,28 @@ def start(bot, update):
     username = update.message.from_user.username
     registeredUsers = users.keys()
 
-    if username not in registeredUsers:
-        users[str(username)] = {
-                                "chat_id": chat_id,
-                                "user_id": user_id,
-                                "enabled": False,
-                                "invitationCode": "",
-                                "invitedUsers": [],
-                                }
+    if str(username) != "None":
+        if username not in registeredUsers:
+            users[str(username)] = {
+                                    "chat_id": chat_id,
+                                    "user_id": user_id,
+                                    "enabled": False,
+                                    "invitationCode": "",
+                                    "invitedUsers": [],
+                                    }
 
-        bot.send_message(chat_id=chat_id, text="Se ha hecho el registro. Ahora debes esperar que un administrador lo apruebe.\n\nSe te informará cuando el proceso de inscripción haya terminado.")
+            bot.send_message(chat_id=chat_id, text="Se ha hecho el registro. Ahora debes esperar que un administrador lo apruebe.\n\nSe te informará cuando el proceso de inscripción haya terminado.")
 
-        with open("Users.json", "w") as usersdb:
-                json.dump(users, usersdb)
+            with open("Users.json", "w") as usersdb:
+                    json.dump(users, usersdb)
 
-        avisarAdmins(bot, username)
+            avisarAdmins(bot, username)
+
+        else:
+            bot.send_message(chat_id=chat_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
 
     else:
-        bot.send_message(chat_id=chat_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
+        bot.send_message(chat_id=chat_id, text="Para registrarse en el sistema es necesario tener un nombre de usuario. Puedes poner uno en las configuraciones de tu cuenta y luego usar el comando /start en este bot nuevamente.")
 
 
 def addAdmin(bot, update, args):
@@ -188,9 +192,12 @@ def parsing(bot, update):
     #if chat_id in chatData.keys(): For multisession chats.
     for key in msgEnts:
         if key.type == "hashtag":
-            if msgEnts[key] == "#invitación":
-                inviteCode = update.message.text[12:22]
-                storeInvite(bot, chat_id, userId, inviteCode)
+            if str(msgEnts[key]) == "#invitación":
+                try:
+                    inviteCode = update.message.text[12:22]
+                    storeInvite(bot, chat_id, userId, inviteCode)
+                except:
+                    bot.send_message(chat_id=chat_id, text="Hay un error en el formato del mensaje de invitación. Asegurate de haberlo escrito bien.")
             else:
                 pass
 
@@ -281,7 +288,7 @@ def habilitarUsuario(bot, update, args):
 def avisarAdmins(bot, username):
 
     for i in adminsIds:
-        bot.send_message(chat_id=i, text="Hay un nuevo registro para habilitar del usuario " + username + ". Para validar la subscripción use el comando: /habilitar " + username)
+        bot.send_message(chat_id=i, text="Hay un nuevo registro para habilitar del usuario " + str(username) + ". Para validar la subscripción use el comando: /habilitar " + str(username))
 
 def myId(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Tu ID de usuario es: " + str(update.message.from_user.id))
@@ -298,7 +305,6 @@ def storeInvite(bot, chat_id, userId, inviteCode):
         bot.send_message(chat_id=chat_id, text="El código ingresado no pertenece a ninguna invitación emitida por el sistema de Bitone Network.\n\nPara evitar errores al copiar el código sugerimos redirigir el mensaje de invitación, o copiar y pegar.")
 
     else:
-        print(userId, knownUsers)
         if str(userId) in knownUsers:
             bot.send_message(chat_id=chat_id, text="Este usuario ya fue registrado como invitado en el sistema.")
         else:
