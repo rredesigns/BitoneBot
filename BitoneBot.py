@@ -23,6 +23,7 @@ with open("bot.key", "r") as tokenFile:
 
 
 UPD = Updater(token=TOKEN)
+JQ = UPD.job_queue
 DIS = UPD.dispatcher
 
 
@@ -31,7 +32,7 @@ chatData = {}
 
 adminsIds = []
 
-knownUsers = []
+knownUsers = {}
 
 usersLookupTable = {}
 
@@ -77,7 +78,7 @@ def inicio():
 
     if len(knownUsers) < 1:
         with open("KnownUsers.json", "w") as knowndb:
-            mainUser = ["57208941"]
+            mainUser = {"57208941": "57208941"}
             json.dump(mainUser, knowndb)
 
         with open("KnownUsers.json", "r") as knowndb:
@@ -119,10 +120,12 @@ def updateKnownUsers():
 # Getting user Chat ID
 def start(bot, update):
     global users
+
     chat_id = update.message.chat_id
     user_id = update.message.from_user.id
     username = update.message.from_user.username
     registeredUsers = users.keys()
+    chat = update.message.chat.type
 
     if str(username) != "None":
         if username not in registeredUsers:
@@ -134,7 +137,7 @@ def start(bot, update):
                                     "invitedUsers": [],
                                     }
 
-            bot.send_message(chat_id=chat_id, text="Se ha hecho el registro. Ahora debes esperar que un administrador lo apruebe.\n\nSe te informará cuando el proceso de inscripción haya terminado.")
+            bot.send_message(chat_id=user_id, text="Se ha hecho el registro. Ahora debes esperar que un administrador lo apruebe.\n\nSe te informará cuando el proceso de inscripción haya terminado.")
 
             with open("Users.json", "w") as usersdb:
                     json.dump(users, usersdb)
@@ -142,10 +145,14 @@ def start(bot, update):
             avisarAdmins(bot, username)
 
         else:
-            bot.send_message(chat_id=chat_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
+            bot.send_message(chat_id=user_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
 
     else:
-        bot.send_message(chat_id=chat_id, text="Para registrarse en el sistema es necesario tener un nombre de usuario. Puedes poner uno en las configuraciones de tu cuenta y luego usar el comando /start en este bot nuevamente.")
+        bot.send_message(chat_id=user_id, text="Para registrarse en el sistema es necesario tener un nombre de usuario. Puedes poner uno en las configuraciones de tu cuenta y luego usar el comando /registro en este bot nuevamente.")
+
+    if chat != "private":
+        # Queue for deletion
+        JQ.run_once(deleteMsg, 10, context=[chat_id, update.message.message_id])
 
 
 def addAdmin(bot, update, args):
@@ -186,6 +193,8 @@ def parsing(bot, update):
     msgEnts = update.message.parse_entities()
     chat_id = str(update.message.chat_id)
     userId = update.message.from_user.id
+    username = update.message.from_user.username
+    msgId = update.message.message_id
 
 
     #Hashtag parsing
@@ -195,9 +204,19 @@ def parsing(bot, update):
             if str(msgEnts[key]) == "#invitación":
                 try:
                     inviteCode = update.message.text[12:22]
-                    storeInvite(bot, chat_id, userId, inviteCode)
+                    if str(username) != "None":
+                        storeInvite(bot, chat_id, userId, username, inviteCode)
+                    else:
+                        msg = bot.send_message(chat_id=chat_id, text="No podemos procesar la invitación hasta que tu cuenta tenga un nombre de usuario.\n\nPuedes ponerte uno en la configuración de Telegram bajo el campo llamado 'username'.")
+
+                        # Queue for deletion
+                        JQ.run_once(deleteMsg, 10, context=[chat_id, msgId])
+                        JQ.run_once(deleteMsg, 15, context=[chat_id, msg.message_id])
                 except:
-                    bot.send_message(chat_id=chat_id, text="Hay un error en el formato del mensaje de invitación. Asegurate de haberlo escrito bien.")
+                    msg = bot.send_message(chat_id=chat_id, text="Hay un error en el formato del mensaje de invitación. Asegurate de haberlo escrito bien.")
+
+                    # Queue for deletion
+                    JQ.run_once(deleteMsg, 5, context=[chat_id, msg.message_id])
             else:
                 pass
 
@@ -270,8 +289,8 @@ def habilitarUsuario(bot, update, args):
             codigo = generarToken()
             users[username]["invitationCode"] = codigo
             users[username]["enabled"] = True
-            bot.send_message(chat_id=users[username]["chat_id"], text="Tu código de invitación es: " + codigo + ". \n \n El usuario que invites deberá usar un hastag más este código al entrar al grupo para completar la invitación.\n\n A continuación se te enviará un mensaje que tú y tus invitados pueden reenviar.")
-            bot.send_message(chat_id=users[username]["chat_id"], text="#invitación " + codigo)
+            bot.send_message(chat_id=users[username]["user_id"], text="Tu código de invitación es: " + codigo + ". \n \n El usuario que invites deberá usar un hastag más este código al entrar al grupo para completar la invitación.\n\n A continuación se te enviará un mensaje que tú y tus invitados pueden reenviar.")
+            bot.send_message(chat_id=users[username]["user_id"], text="#invitación " + codigo)
 
             bot.send_message(chat_id=adminID, text="Se envió el código de invitación al usuario")
 
@@ -293,20 +312,26 @@ def avisarAdmins(bot, username):
 def myId(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Tu ID de usuario es: " + str(update.message.from_user.id))
 
-def storeInvite(bot, chat_id, userId, inviteCode):
+def storeInvite(bot, chat_id, userId, username, inviteCode):
     global chatData
     global users
     global adminsIds
     global knownUsers
 
     updateKnownUsers()
-
+    print(knownUsers)
     if str(inviteCode) not in usersLookupTable.keys():
-        bot.send_message(chat_id=chat_id, text="El código ingresado no pertenece a ninguna invitación emitida por el sistema de Bitone Network.\n\nPara evitar errores al copiar el código sugerimos redirigir el mensaje de invitación, o copiar y pegar.")
+        msg = bot.send_message(chat_id=chat_id, text="El código ingresado no pertenece a ninguna invitación emitida por el sistema de Bitone Network.\n\nPara evitar errores al copiar el código sugerimos redirigir el mensaje de invitación, o copiar y pegar.")
+
+        # Queue for deletion
+        JQ.run_once(deleteMsg, 15, context=[chat_id, msg.message_id])
 
     else:
-        if str(userId) in knownUsers:
-            bot.send_message(chat_id=chat_id, text="Este usuario ya fue registrado como invitado en el sistema.")
+        if str(userId) in knownUsers.keys():
+            msg = bot.send_message(chat_id=chat_id, text="Este usuario ya fue registrado como invitado en el sistema.")
+
+            # Queue for deletion
+            JQ.run_once(deleteMsg, 5, context=[chat_id, msg.message_id])
         else:
             # Get the owner of the invite
             owner = usersLookupTable[str(inviteCode)]
@@ -315,7 +340,10 @@ def storeInvite(bot, chat_id, userId, inviteCode):
             users[owner]["invitedUsers"].append(str(userId))
 
             # Add new group memeber to known users list
-            knownUsers.append(str(userId))
+            knownUsers[str(userId)] = usersLookupTable[str(inviteCode)]
+
+            # Alert about new computed invite
+            msg = bot.send_message(chat_id=chat_id, text="El usuario " + str(username) + " se ha agregado al sistema como invitado de @" + owner + ".")
 
 
 def showUsers(bot, update):
@@ -323,15 +351,38 @@ def showUsers(bot, update):
     global users
     global adminsIds
     global knownUsers
+    global stack
 
     chat_id = update.message.chat_id
     storedUsers = users.keys()
 
     for i in storedUsers:
-        bot.send_message(chat_id=chat_id, text="Usuario:" + i + str(users[i]))
+        msg = bot.send_message(chat_id=chat_id, text="Usuario:" + i + str(users[i]))
+        JQ.run_once(deleteMsg, 5, context=[chat_id, msg.message_id])
+
+def deleteMsg(bot,job):
+
+    bot.delete_message(chat_id=job.context[0], message_id=job.context[1])
+
+def memberLeft(bot, update):
+    global users
+    global adminsIds
+    global knownUsers
+
+    chat_id = update.message.chat_id
+    member = update.message.left_chat_member
+
+    if member.id in knownUsers.keys():
+        owner = knownUsers[str(member.id)]
+        msg = bot.send_message(chat_id=chat_id, text="El usuario " + member.username + " se ha salido del grupo.\n\nSe descontará la invitación del perfil del usuario @" + owner + " según las reglas.")
+
+        # job queue for deletion
+        JQ.run_once(deleteMsg, 15, context[chat_id, msg.message_id])
+
 
 #Passing handlers to the dispatcher
 DIS.add_handler(CMD("start", start))
+DIS.add_handler(CMD("registro", start))
 DIS.add_handler(CMD("aAdmin", addAdmin, pass_args=True))
 DIS.add_handler(CMD("id", myId))
 DIS.add_handler(CMD("show", showUsers))
@@ -340,6 +391,7 @@ DIS.add_handler(CMD("bienvenidaTest", bienvenidaTest))
 DIS.add_handler(CMD("habilitar", habilitarUsuario, pass_args=True))
 
 DIS.add_handler(MSG(Filters.status_update.new_chat_members, bienvenida))
+DIS.add_handler(MSG(Filters.status_update.left_chat_member, memberLeft))
 DIS.add_handler(MSG(Filters.all, parsing))
 
 inicio()
