@@ -49,6 +49,46 @@ users = {
 #DB overwrite switch
 overwriteDB = False
 
+info = """Estimados cazarecompensas, ¡estamos muy felices de anunciar nuestro nuevo programa de recompensas preventa!\n\n
+El objetivo de este _Bounty Program_ es promocionar la preventa de la red *Bitone* atrayendo a nuestro canal oficial de Telegram a nuevos participantes.\n\n
+Preventa se llevará a cabo en Q8 2018. También tendremos un programa de recompensas para el 1st INO en Q10 2018. Los tokens se distribuirán a los 3 meses más tarde, en Q2 2019.\n\n
+La hoja de recompensas y puntuaciones será mostrada constantemente en el grupo de Telegram de [BN Bounty Presale](https://t.me/BN_bounty_presale).\n\n
+Cómo acceder al *Programa Bounty:*\n
+    • Únase al chat de [BN Bounty Presale](https://t.me/BN_bounty_presale) para participar, consultar y exponer dudas. `No hablar de spam o publicidad.`\n
+    • La violación de las reglas de la campaña conduce a la *descalificación del participante* al abandonar todas las apuestas o fichas recibidas anteriormente. * No toleramos ningún tipo de trampa.*\n
+    • Los *términos y condiciones* de la campaña BOUNTY pueden cambiarse en caso de necesidad.\n\n
+También tenemos recompensas especiales que se negociarán individualmente. Estamos buscando socios con una huella/reconocimiento significativo en el ecosistema crypto/blockchain.\nTambién estamos buscando profesionales en el campo del marketing que nos ayuden con nuestra estrategia de marketing (p. Ej. Capaces de organizar eventos, SEO/profesionales de las redes sociales, etc.).\n\nEsta categoría de recompensas también debería atraer a los participantes que nos conectan con asesores, personas influyentes en la esfera crypto/blockchain o que aportan valor con ideas fantásticas para ayudar a [Bitone Network](http://www.bitone.network/) y también a los contribuyentes al desarrollo y/o al código auditivo.\n
+Consúltenos más detalles enviándonos un correo electrónico a `info@bitone.network` y escriba el asunto del correo electrónico *"Bounty"*."""
+
+rules = """*¿Cómo participar?*\n\n
+El objetivo es atraer nuevos usuarios al grupo oficial de Telegram de Bitone Network.
+
+Para participar, debe unirse al grupo de telegram [BN Bounty Presale](https://t.me/BN_bounty_presale) y leer los pasos a seguir en el mensaje anclado en el chat.
+
+Por cada 50 nuevos invitados que traiga el participante, se le recompensará con 0,5 bitone node, un equivalente a 250 dólares a precio de preventa.
+
+Se repartirán un máximo de 100 bitone node durante todo el evento, un equivalente a 40.000 dólares a precio de preventa.
+
+El participante que haya traído más invitados al grupo de Telegram, obtendrá una recompensa extra de:
+
+    • `1` bitone node extra: Si invitó a un mínimo de *100* personas.
+
+    • `5` Bitone node extra: Si invitó a un mínimo de *500* personas.
+
+    • `10` Bitone node: Si invito a un mínimo de *1000* personas.
+
+*Reglas:*
+
+• Los usuarios invitados deben ser personas reales y deben estar en contacto con el entorno de las criptomonedas.
+
+• No se podrá invitar más de una vez a un mismo usuario.
+
+• Los usuarios invitados deben permanecer durante todo el evento de preventa dentro del canal oficial de Telegram de *Bitone Network*. En caso de que los invitados abandonen el chat, se descontará la puntuación correspondiente al participante que lo invito.
+
+• La campaña compensará a partir del día 24 de junio a las 00:00 UTC + 2 y terminará el día 31 de agosto a las 00:00 UTC +2. Durante ese periodo de tiempo podrá participar todo el mundo e inscribirse en cualquier momento.
+
+• Cualquier duda o comentario se hablará por el chat de Telegram de [BN Bounty Presale](https://t.me/BN_bounty_presale), nunca en el chat oficial de Telegram de Bitone Network.
+"""
 
 def inicio():
     global chatData
@@ -70,7 +110,7 @@ def inicio():
     # Making sure the control vars are not empty
     if len(adminsIds) < 1:
         with open("Admins.json", "w") as adminsdb:
-            mainAdmin = ["57208941"]
+            mainAdmin = ["57208941", "407534480"]
             json.dump(mainAdmin, adminsdb)
 
         with open("Admins.json", "r") as adminsdb:
@@ -228,23 +268,13 @@ def parsing(bot, update):
 
 
 def bienvenida(bot, update):
-    pass
-    ##name = update.message.new_chat_members[0].first_name
-    #chat_id = str(update.message.chat_id)
 
-    ##Checking if there's a stored session
-    #if chat_id in chatData.keys():
-        ##Greeting every new chat member
-        #for newMember in update.message.new_chat_members:
-            #saludo = chatData[str(chat_id)]["saludo"] + newMember.first_name + ". " + chatData[str(chat_id)]["bienvenida"]
+    chat_id = str(update.message.chat_id)
 
-            #bot.send_message(chat_id=update.message.chat_id, text=saludo, disable_notification=True)
+    for newMember in update.message.new_chat_members:
+        saludo = chatData["generic"]["saludo"] + newMember.first_name + ". " + chatData["generic"]["bienvenida"]
 
-    #else:
-        #for newMember in update.message.new_chat_members:
-            #saludo = chatData["generic"]["saludo"] + newMember.first_name + ". " + chatData["generic"]["bienvenida"]
-
-            #bot.send_message(chat_id=update.message.chat_id, text=saludo, disable_notification=True)
+        bot.send_message(chat_id=update.message.chat_id, text=saludo, disable_notification=True)
 
 
 def bienvenidaTest(bot, update):
@@ -406,12 +436,38 @@ def memberLeft(bot, update):
         # job queue for deletion
         JQ.run_once(deleteMsg, 15, context=[chat_id, msg.message_id])
 
+def showInfo(bot, update):
+    global info
+
+    chat_id = update.message.chat_id
+    message_id = update.message.message_id
+
+    msg = bot.send_message(chat_id=chat_id, text=info, parse_mode="Markdown")
+
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 5, context=[chat_id, message_id])
+    JQ.run_once(deleteMsg, 40, context=[chat_id, msg.message_id])
+
+def showRules(bot, update):
+    global rules
+
+    chat_id = update.message.chat_id
+    message_id = update.message.message_id
+
+    msg = bot.send_message(chat_id=chat_id, text=rules, parse_mode="Markdown")
+
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 5, context=[chat_id, message_id])
+    JQ.run_once(deleteMsg, 40, context=[chat_id, msg.message_id])
+
 
 #Passing handlers to the dispatcher
 DIS.add_handler(CMD("start", start))
 DIS.add_handler(CMD("registro", start))
 DIS.add_handler(CMD("aAdmin", addAdmin, pass_args=True))
 DIS.add_handler(CMD("id", myId))
+DIS.add_handler(CMD("reglas", showRules))
+DIS.add_handler(CMD("info", showInfo))
 DIS.add_handler(CMD("show", showUsers))
 DIS.add_handler(CMD("bienvenida", cambiarTextoDeBienvenida, pass_args=True))
 DIS.add_handler(CMD("bienvenidaTest", bienvenidaTest))
