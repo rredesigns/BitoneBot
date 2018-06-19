@@ -78,7 +78,7 @@ def inicio():
 
     if len(knownUsers) < 1:
         with open("KnownUsers.json", "w") as knowndb:
-            mainUser = {"57208941": "57208941"}
+            mainUser = {"dummy": "dummy"}
             json.dump(mainUser, knowndb)
 
         with open("KnownUsers.json", "r") as knowndb:
@@ -145,7 +145,10 @@ def start(bot, update):
             avisarAdmins(bot, username)
 
         else:
-            bot.send_message(chat_id=user_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
+            msg = bot.send_message(chat_id=user_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
+
+            # Queue for deletion
+            JQ.run_once(deleteMsg, 10, context=[chat_id, update.message.message_id])
 
     else:
         bot.send_message(chat_id=user_id, text="Para registrarse en el sistema es necesario tener un nombre de usuario. Puedes poner uno en las configuraciones de tu cuenta y luego usar el comando /registro en este bot nuevamente.")
@@ -217,27 +220,31 @@ def parsing(bot, update):
 
                     # Queue for deletion
                     JQ.run_once(deleteMsg, 5, context=[chat_id, msg.message_id])
+
+                # Queue for deletion
+                JQ.run_once(deleteMsg, 5, context=[chat_id, msgId])
             else:
                 pass
 
 
 def bienvenida(bot, update):
-    #name = update.message.new_chat_members[0].first_name
-    chat_id = str(update.message.chat_id)
+    pass
+    ##name = update.message.new_chat_members[0].first_name
+    #chat_id = str(update.message.chat_id)
 
-    #Checking if there's a stored session
-    if chat_id in chatData.keys():
-        #Greeting every new chat member
-        for newMember in update.message.new_chat_members:
-            saludo = chatData[str(chat_id)]["saludo"] + newMember.first_name + ". " + chatData[str(chat_id)]["bienvenida"]
+    ##Checking if there's a stored session
+    #if chat_id in chatData.keys():
+        ##Greeting every new chat member
+        #for newMember in update.message.new_chat_members:
+            #saludo = chatData[str(chat_id)]["saludo"] + newMember.first_name + ". " + chatData[str(chat_id)]["bienvenida"]
 
-            bot.send_message(chat_id=update.message.chat_id, text=saludo, disable_notification=True)
+            #bot.send_message(chat_id=update.message.chat_id, text=saludo, disable_notification=True)
 
-    else:
-        for newMember in update.message.new_chat_members:
-            saludo = chatData["generic"]["saludo"] + newMember.first_name + ". " + chatData["generic"]["bienvenida"]
+    #else:
+        #for newMember in update.message.new_chat_members:
+            #saludo = chatData["generic"]["saludo"] + newMember.first_name + ". " + chatData["generic"]["bienvenida"]
 
-            bot.send_message(chat_id=update.message.chat_id, text=saludo, disable_notification=True)
+            #bot.send_message(chat_id=update.message.chat_id, text=saludo, disable_notification=True)
 
 
 def bienvenidaTest(bot, update):
@@ -319,7 +326,7 @@ def storeInvite(bot, chat_id, userId, username, inviteCode):
     global knownUsers
 
     updateKnownUsers()
-    print(knownUsers)
+
     if str(inviteCode) not in usersLookupTable.keys():
         msg = bot.send_message(chat_id=chat_id, text="El código ingresado no pertenece a ninguna invitación emitida por el sistema de Bitone Network.\n\nPara evitar errores al copiar el código sugerimos redirigir el mensaje de invitación, o copiar y pegar.")
 
@@ -339,11 +346,20 @@ def storeInvite(bot, chat_id, userId, username, inviteCode):
             # Add user to the owner count
             users[owner]["invitedUsers"].append(str(userId))
 
+            # Update users profiles
+            updateUsers()
+
             # Add new group memeber to known users list
             knownUsers[str(userId)] = usersLookupTable[str(inviteCode)]
 
             # Alert about new computed invite
             msg = bot.send_message(chat_id=chat_id, text="El usuario " + str(username) + " se ha agregado al sistema como invitado de @" + owner + ".")
+
+            # Queue for deletion
+            JQ.run_once(deleteMsg, 15, context=[chat_id, msg.message_id])
+
+            updateKnownUsers()
+            print(knownUsers)
 
 
 def showUsers(bot, update):
@@ -354,11 +370,15 @@ def showUsers(bot, update):
     global stack
 
     chat_id = update.message.chat_id
+    msgId = update.message.message_id
     storedUsers = users.keys()
 
     for i in storedUsers:
         msg = bot.send_message(chat_id=chat_id, text="Usuario:" + i + str(users[i]))
         JQ.run_once(deleteMsg, 5, context=[chat_id, msg.message_id])
+
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 5, context=[chat_id, msgId])
 
 def deleteMsg(bot,job):
 
@@ -371,13 +391,20 @@ def memberLeft(bot, update):
 
     chat_id = update.message.chat_id
     member = update.message.left_chat_member
+    memberId = member.id
 
-    if member.id in knownUsers.keys():
+    if str(memberId) in knownUsers.keys():
         owner = knownUsers[str(member.id)]
         msg = bot.send_message(chat_id=chat_id, text="El usuario " + member.username + " se ha salido del grupo.\n\nSe descontará la invitación del perfil del usuario @" + owner + " según las reglas.")
 
+        # Deleting invite from owner
+        users[owner]["invitedUsers"].remove(str(memberId))
+
+        # Updating users DB
+        updateUsers()
+
         # job queue for deletion
-        JQ.run_once(deleteMsg, 15, context[chat_id, msg.message_id])
+        JQ.run_once(deleteMsg, 15, context=[chat_id, msg.message_id])
 
 
 #Passing handlers to the dispatcher
