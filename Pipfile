@@ -2,5 +2,6 @@
 
 
 [requires]
+python-telegram-bot = "*"
 
 python_version = "3.6"
