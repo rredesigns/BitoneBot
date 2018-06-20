@@ -50,22 +50,22 @@ users = {
 overwriteDB = False
 
 info = """Estimados cazarecompensas, ¡estamos muy felices de anunciar nuestro nuevo programa de recompensas preventa!\n\n
-El objetivo de este _Bounty Program_ es promocionar la preventa de la red *Bitone* atrayendo a nuestro canal oficial de Telegram a nuevos participantes.\n\n
+El objetivo de este _Bounty Program_ es promocionar la preventa de la red *Bitone* atrayendo a nuestro [canal oficial de Telegram](https://t.me/Bitone_Network) a nuevos participantes.\n\n
 Preventa se llevará a cabo en Q8 2018. También tendremos un programa de recompensas para el 1st INO en Q10 2018. Los tokens se distribuirán a los 3 meses más tarde, en Q2 2019.\n\n
 La hoja de recompensas y puntuaciones será mostrada constantemente en el grupo de Telegram de [BN Bounty Presale](https://t.me/BN_bounty_presale).\n\n
 Cómo acceder al *Programa Bounty:*\n
     • Únase al chat de [BN Bounty Presale](https://t.me/BN_bounty_presale) para participar, consultar y exponer dudas. `No hablar de spam o publicidad.`\n
     • La violación de las reglas de la campaña conduce a la *descalificación del participante* al abandonar todas las apuestas o fichas recibidas anteriormente. * No toleramos ningún tipo de trampa.*\n
     • Los *términos y condiciones* de la campaña BOUNTY pueden cambiarse en caso de necesidad.\n\n
-También tenemos recompensas especiales que se negociarán individualmente. Estamos buscando socios con una huella/reconocimiento significativo en el ecosistema crypto/blockchain.\nTambién estamos buscando profesionales en el campo del marketing que nos ayuden con nuestra estrategia de marketing (p. Ej. Capaces de organizar eventos, SEO/profesionales de las redes sociales, etc.).\n\nEsta categoría de recompensas también debería atraer a los participantes que nos conectan con asesores, personas influyentes en la esfera crypto/blockchain o que aportan valor con ideas fantásticas para ayudar a [Bitone Network](http://www.bitone.network/) y también a los contribuyentes al desarrollo y/o al código auditivo.\n
+También tenemos recompensas especiales que se negociarán individualmente. Estamos buscando socios con una huella/reconocimiento significativo en el ecosistema crypto/blockchain.\nTambién estamos buscando profesionales en el campo del marketing que nos ayuden con nuestra estrategia de marketing (p. Ej. Capaces de organizar eventos, SEO/profesionales de las redes sociales, etc.).\n\nEsta categoría de recompensas también debería atraer a los participantes que nos conectan con asesores, personas influyentes en la esfera crypto/blockchain o que aportan valor con ideas fantásticas para ayudar a Bitone Network y también a los contribuyentes al desarrollo y/o al código auditivo.\n
 Consúltenos más detalles enviándonos un correo electrónico a `info@bitone.network` y escriba el asunto del correo electrónico *"Bounty"*."""
 
-rules = """*¿Cómo participar?*\n\n
-El objetivo es atraer nuevos usuarios al grupo oficial de Telegram de Bitone Network.
+rules = """\n\n*¿Cómo participar?*\n
+El objetivo es atraer nuevos usuarios al [grupo oficial de Telegram](https://t.me/Bitone_Network) de Bitone Network.
 
 Para participar, debe unirse al grupo de telegram [BN Bounty Presale](https://t.me/BN_bounty_presale) y leer los pasos a seguir en el mensaje anclado en el chat.
 
-Por cada 50 nuevos invitados que traiga el participante, se le recompensará con 0,5 bitone node, un equivalente a 250 dólares a precio de preventa.
+Por cada 50 nuevos invitados que traiga el participante, se le recompensará con 0,125 bitone node, un equivalente a 50 dólares a precio de preventa.
 
 Se repartirán un máximo de 100 bitone node durante todo el evento, un equivalente a 40.000 dólares a precio de preventa.
 
@@ -75,19 +75,19 @@ El participante que haya traído más invitados al grupo de Telegram, obtendrá 
 
     • `5` Bitone node extra: Si invitó a un mínimo de *500* personas.
 
-    • `10` Bitone node: Si invito a un mínimo de *1000* personas.
+    • `10` Bitone node extra: Si invito a un mínimo de *1000* personas.
 
-*Reglas:*
+*REGLAS:*
 
 • Los usuarios invitados deben ser personas reales y deben estar en contacto con el entorno de las criptomonedas.
 
 • No se podrá invitar más de una vez a un mismo usuario.
 
-• Los usuarios invitados deben permanecer durante todo el evento de preventa dentro del canal oficial de Telegram de *Bitone Network*. En caso de que los invitados abandonen el chat, se descontará la puntuación correspondiente al participante que lo invito.
+• Los usuarios invitados deben permanecer durante todo el evento de preventa dentro del [canal oficial de Telegram](https://t.me/Bitone_Network) de *Bitone Network*. En caso de que los invitados abandonen el chat, se descontará la puntuación correspondiente al participante que lo invito.
 
 • La campaña compensará a partir del día 24 de junio a las 00:00 UTC + 2 y terminará el día 31 de agosto a las 00:00 UTC +2. Durante ese periodo de tiempo podrá participar todo el mundo e inscribirse en cualquier momento.
 
-• Cualquier duda o comentario se hablará por el chat de Telegram de [BN Bounty Presale](https://t.me/BN_bounty_presale), nunca en el chat oficial de Telegram de Bitone Network.
+• Cualquier duda o comentario se hablará por el chat de Telegram de [BN Bounty Presale](https://t.me/BN_bounty_presale), nunca en el chat oficial de Telegram de *Bitone Network*.
 """
 
 def inicio():
@@ -110,7 +110,8 @@ def inicio():
     # Making sure the control vars are not empty
     if len(adminsIds) < 1:
         with open("Admins.json", "w") as adminsdb:
-            mainAdmin = ["57208941", "407534480"]
+            #mainAdmin = ["57208941", "407534480"]
+            mainAdmin = ["57208941"]
             json.dump(mainAdmin, adminsdb)
 
         with open("Admins.json", "r") as adminsdb:
@@ -157,8 +158,56 @@ def updateKnownUsers():
     with open("KnownUsers.json", "r") as knowndb:
             knownUsers = json.load(knowndb)
 
-# Getting user Chat ID
 def start(bot, update):
+    chat_id = update.message.chat_id
+
+    bot.send_message(chat_id=chat_id, text="Please go to the [BN Bounty Presale](https://t.me/BN_bounty_presale) group and run the /register command there to start the register process.", parse_mode="Markdown")
+    bot.send_message(chat_id=chat_id, text="Por favor ve al grupo de [BN Bounty Presale](https://t.me/BN_bounty_presale) y ejecuta el comando /registro allí para iniciar el registro.", parse_mode="Markdown")
+
+
+def register(bot, update):
+    global users
+
+    chat_id = update.message.chat_id
+    user_id = update.message.from_user.id
+    username = update.message.from_user.username
+    registeredUsers = users.keys()
+    chat = update.message.chat.type
+    if chat != "private":
+        if str(username) != "None":
+            if username not in registeredUsers:
+                users[str(username)] = {
+                                        "chat_id": chat_id,
+                                        "user_id": user_id,
+                                        "enabled": False,
+                                        "invitationCode": "",
+                                        "invitedUsers": [],
+                                        }
+
+                bot.send_message(chat_id=user_id, text="Se ha hecho el registro. Ahora debes esperar que un administrador lo apruebe.\n\nSe te informará cuando el proceso de inscripción haya terminado.")
+
+                with open("Users.json", "w") as usersdb:
+                        json.dump(users, usersdb)
+
+                avisarAdmins(bot, username)
+
+            else:
+                msg = bot.send_message(chat_id=user_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
+
+                # Queue for deletion
+                JQ.run_once(deleteMsg, 10, context=[chat_id, update.message.message_id])
+
+        else:
+            bot.send_message(chat_id=user_id, text="Para registrarse en el sistema es necesario tener un nombre de usuario. Puedes poner uno en las configuraciones de tu cuenta y luego usar el comando /registro en este bot nuevamente.")
+
+        if chat != "private":
+            # Queue for deletion
+            JQ.run_once(deleteMsg, 10, context=[chat_id, update.message.message_id])
+
+    else:
+        bot.send_message(chat_id=chat_id, text="Please go to the [BN Bounty Presale](https://t.me/BN_bounty_presale) group and run the /register command there to start the register process.", parse_mode="Markdown")
+
+def registro(bot, update):
     global users
 
     chat_id = update.message.chat_id
@@ -167,35 +216,39 @@ def start(bot, update):
     registeredUsers = users.keys()
     chat = update.message.chat.type
 
-    if str(username) != "None":
-        if username not in registeredUsers:
-            users[str(username)] = {
-                                    "chat_id": chat_id,
-                                    "user_id": user_id,
-                                    "enabled": False,
-                                    "invitationCode": "",
-                                    "invitedUsers": [],
-                                    }
+    if chat != "private":
+        if str(username) != "None":
+            if username not in registeredUsers:
+                users[str(username)] = {
+                                        "chat_id": chat_id,
+                                        "user_id": user_id,
+                                        "enabled": False,
+                                        "invitationCode": "",
+                                        "invitedUsers": [],
+                                        }
 
-            bot.send_message(chat_id=user_id, text="Se ha hecho el registro. Ahora debes esperar que un administrador lo apruebe.\n\nSe te informará cuando el proceso de inscripción haya terminado.")
+                bot.send_message(chat_id=user_id, text="Se ha hecho el registro. Ahora debes esperar que un administrador lo apruebe.\n\nSe te informará cuando el proceso de inscripción haya terminado.")
 
-            with open("Users.json", "w") as usersdb:
-                    json.dump(users, usersdb)
+                with open("Users.json", "w") as usersdb:
+                        json.dump(users, usersdb)
 
-            avisarAdmins(bot, username)
+                avisarAdmins(bot, username)
+
+            else:
+                msg = bot.send_message(chat_id=user_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
+
+                # Queue for deletion
+                JQ.run_once(deleteMsg, 10, context=[chat_id, update.message.message_id])
 
         else:
-            msg = bot.send_message(chat_id=user_id, text="Ya te has registrado en el sistema. Solo puede hacerse una vez.")
+            bot.send_message(chat_id=user_id, text="Para registrarse en el sistema es necesario tener un nombre de usuario. Puedes poner uno en las configuraciones de tu cuenta y luego usar el comando /registro en este bot nuevamente.")
 
+        if chat != "private":
             # Queue for deletion
             JQ.run_once(deleteMsg, 10, context=[chat_id, update.message.message_id])
 
     else:
-        bot.send_message(chat_id=user_id, text="Para registrarse en el sistema es necesario tener un nombre de usuario. Puedes poner uno en las configuraciones de tu cuenta y luego usar el comando /registro en este bot nuevamente.")
-
-    if chat != "private":
-        # Queue for deletion
-        JQ.run_once(deleteMsg, 10, context=[chat_id, update.message.message_id])
+        bot.send_message(chat_id=chat_id, text="Por favor ve al grupo de [BN Bounty Presale](https://t.me/BN_bounty_presale) y ejecuta el comando /registro allí para iniciar el registro.", parse_mode="Markdown")
 
 
 def addAdmin(bot, update, args):
@@ -268,14 +321,29 @@ def parsing(bot, update):
 
 
 def bienvenida(bot, update):
+    global users
+    global knownUsers
+    global usersLookupTable
 
     chat_id = str(update.message.chat_id)
 
     for newMember in update.message.new_chat_members:
-        saludo = chatData["generic"]["saludo"] + newMember.first_name + ". " + chatData["generic"]["bienvenida"]
+        if str(newMember.id) in knownUsers.keys():
 
-        bot.send_message(chat_id=update.message.chat_id, text=saludo, disable_notification=True)
+            userId = newMember.id
 
+            # Counting back returning users
+
+            # Get the owner of the invite
+            owner = knownUsers[str(userId)]
+
+            # Add user to the owner count
+            users[owner]["invitedUsers"].append(str(userId))
+
+            # Update users profiles
+            updateUsers()
+
+            print("El usuario " + str(newMember.username) + " se ha agregado al sistema como invitado de @" + owner + ".")
 
 def bienvenidaTest(bot, update):
     chat_id = str(update.message.chat_id)
@@ -393,11 +461,9 @@ def storeInvite(bot, chat_id, userId, username, inviteCode):
 
 
 def showUsers(bot, update):
-    global chatData
     global users
     global adminsIds
     global knownUsers
-    global stack
 
     chat_id = update.message.chat_id
     msgId = update.message.message_id
@@ -428,7 +494,10 @@ def memberLeft(bot, update):
         msg = bot.send_message(chat_id=chat_id, text="El usuario " + member.username + " se ha salido del grupo.\n\nSe descontará la invitación del perfil del usuario @" + owner + " según las reglas.")
 
         # Deleting invite from owner
-        users[owner]["invitedUsers"].remove(str(memberId))
+        try:
+            users[owner]["invitedUsers"].remove(str(memberId))
+        except:
+            print("The user is not in the list and can't be removed'")
 
         # Updating users DB
         updateUsers()
@@ -460,15 +529,141 @@ def showRules(bot, update):
     JQ.run_once(deleteMsg, 5, context=[chat_id, message_id])
     JQ.run_once(deleteMsg, 40, context=[chat_id, msg.message_id])
 
+def stats(bot, update):
+    global users
+    global adminsIds
+    global knownUsers
+
+    chat_id = update.message.chat_id
+    msgId = update.message.message_id
+
+    # Message
+    messageToSend = "\n    *EVENT STATE*"
+
+    # Dict to sort positions
+    sortedDict = {}
+
+    for i in users.keys():
+
+        #Filling the dict
+        if i != "dummy":
+            sortedDict[len(users[i]["invitedUsers"])] = i
+        else:
+            pass
+
+    for j in sorted(sortedDict, reverse=True):
+        userText = "\n\n*• User: *`" + sortedDict[j] + "`.    *Invited: *`"+ str(j) + "` members."
+        messageToSend = messageToSend + userText
+
+    msg = bot.send_message(chat_id=chat_id, text=messageToSend, parse_mode="Markdown")
+
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 10, context=[chat_id, msg.message_id])
+    JQ.run_once(deleteMsg, 60, context=[chat_id, msgId])
+
+
+def estado(bot, update):
+    global users
+    global adminsIds
+    global knownUsers
+
+    chat_id = update.message.chat_id
+    msgId = update.message.message_id
+
+    # Message
+    messageToSend = "\n    *ESTADO DEL EVENTO*"
+
+    # Dict to sort positions
+    sortedDict = {}
+
+    for i in users.keys():
+
+        #Filling the dict
+        if i != "dummy":
+            sortedDict[len(users[i]["invitedUsers"])] = i
+        else:
+            pass
+
+    for j in sorted(sortedDict, reverse=True):
+        userText = "\n\n*• Usuario: *`" + sortedDict[j] + "`.    *Invitados: *`"+ str(j) + "` miembros."
+        messageToSend = messageToSend + userText
+
+    msg = bot.send_message(chat_id=chat_id, text=messageToSend, parse_mode="Markdown")
+
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 10, context=[chat_id, msg.message_id])
+    JQ.run_once(deleteMsg, 60, context=[chat_id, msgId])
+
+
+def userStats(bot, update):
+    global users
+
+    chat_id = update.message.chat_id
+    msgId = update.message.message_id
+    username = update.message.from_user.username
+
+    invitedUsersCount = len(users[username]["invitedUsers"])
+
+    msg = bot.send_message(chat_id=chat_id, text="Hi " + username + ". \n\nUp to now you have `" + str(invitedUsersCount) + "` users invited to *Bitone Network's'* group.", parse_mode="Markdown")
+
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 20, context=[chat_id, msg.message_id])
+    JQ.run_once(deleteMsg, 40, context=[chat_id, msgId])
+
+def estadoUsuario(bot, update):
+    global users
+
+    chat_id = update.message.chat_id
+    msgId = update.message.message_id
+    username = update.message.from_user.username
+
+    invitedUsersCount = len(users[username]["invitedUsers"])
+
+    msg = bot.send_message(chat_id=chat_id, text="Hola " + username + ". \n\nHasta el momento llevas registrados `" + str(invitedUsersCount) + "` usuarios invitados en el grupo de *Bitone Network*.", parse_mode="Markdown")
+
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 20, context=[chat_id, msg.message_id])
+    JQ.run_once(deleteMsg, 40, context=[chat_id, msgId])
+
+def fullMsg(bot, update):
+    global info
+    global rules
+
+    chat_id = update.message.chat_id
+
+    bot.send_message(chat_id=chat_id, text=info + rules, parse_mode="Markdown")
+
+def msgCompleto(bot, update):
+    global info
+    global rules
+
+    chat_id = update.message.chat_id
+
+    bot.send_message(chat_id=chat_id, text=info + rules, parse_mode="Markdown")
 
 #Passing handlers to the dispatcher
 DIS.add_handler(CMD("start", start))
-DIS.add_handler(CMD("registro", start))
+
+DIS.add_handler(CMD("register", register))
+DIS.add_handler(CMD("registro", registro))
+
 DIS.add_handler(CMD("aAdmin", addAdmin, pass_args=True))
+
 DIS.add_handler(CMD("id", myId))
+
+DIS.add_handler(CMD("full-es", msgCompleto))
+DIS.add_handler(CMD("full", fullMsg))
+
 DIS.add_handler(CMD("reglas", showRules))
 DIS.add_handler(CMD("info", showInfo))
 DIS.add_handler(CMD("show", showUsers))
+
+DIS.add_handler(CMD("event", stats))
+DIS.add_handler(CMD("evento", estado))
+
+DIS.add_handler(CMD("estado", estadoUsuario))
+DIS.add_handler(CMD("stats", userStats))
+
 DIS.add_handler(CMD("bienvenida", cambiarTextoDeBienvenida, pass_args=True))
 DIS.add_handler(CMD("bienvenidaTest", bienvenidaTest))
 DIS.add_handler(CMD("habilitar", habilitarUsuario, pass_args=True))
