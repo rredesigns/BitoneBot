@@ -703,7 +703,7 @@ def stats(bot, update):
             # Preparing the text
 
             if i != "dummy":
-                userText = "\n\n*• Usuario: *`" + i + "`.    *Invitados: *`"+ str(len(users[i]["invitedUsers"])) + "` miembros."
+                userText = "\n\n*• User: *`" + i + "`.    *Invited: *`"+ str(len(users[i]["invitedUsers"])) + "` members."
                 messageToSend = messageToSend + userText
             else:
                 pass
@@ -771,7 +771,7 @@ def userStats(bot, update):
         else:
             invitedUsersCount = len(users[username]["invitedUsers"])
 
-            msg = bot.send_message(chat_id=chat_id, text="Hi " + username + ". \n\nUp to now you have `" + str(invitedUsersCount) + "` users invited to *Bitone Network's* group.", parse_mode="Markdown")
+            msg = bot.send_message(chat_id=chat_id, text="Hi " + username + ". \n\nUp to now you have " + str(invitedUsersCount) + " users invited to Bitone Network's group.")
 
             # Queue for deletion
             JQ.run_once(deleteMsg, 20, context=[chat_id, msg.message_id])
@@ -801,7 +801,7 @@ def estadoUsuario(bot, update):
         else:
             invitedUsersCount = len(users[username]["invitedUsers"])
 
-            msg = bot.send_message(chat_id=chat_id, text="Hola " + username + ". \n\nHasta el momento llevas registrados `" + str(invitedUsersCount) + "` usuarios invitados en el grupo de *Bitone Network*.", parse_mode="Markdown")
+            msg = bot.send_message(chat_id=chat_id, text="Hola " + username + ". \n\nHasta el momento llevas registrados " + str(invitedUsersCount) + " usuarios invitados en el grupo de Bitone Network.")
 
             # Queue for deletion
             JQ.run_once(deleteMsg, 20, context=[chat_id, msg.message_id])
