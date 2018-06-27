@@ -76,7 +76,7 @@ The goal is bringing users to Bitone Network's' [official Telegram group](https:
 
 To participate, you must join the [BN Bounty Presale](https://t.me/BN_bounty_presale) Telegram group and read the pinned message with the steps to follow.
 
-For each 50 invited users the paticipant brings, he will be rewarded with 0.125 Bitone Node, equal to 50 dolars at presale price.
+For each 50 invited users the paticipant brings, he will be rewarded with 0.250 Bitone Node, equal to 100 dolars at presale price.
 
 Up to 100 Bitone Node will be handed to the participants during the event, worth 40.000 dolars at presale price.
 
@@ -106,7 +106,7 @@ El objetivo es atraer nuevos usuarios al [grupo oficial de Telegram](https://t.m
 
 Para participar, debe unirse al grupo de telegram [BN Bounty Presale](https://t.me/BN_bounty_presale) y leer los pasos a seguir en el mensaje anclado en el chat.
 
-Por cada 50 nuevos invitados que traiga el participante, se le recompensará con 0,125 Bitone Node, un equivalente a 50 dólares a precio de preventa.
+Por cada 50 nuevos invitados que traiga el participante, se le recompensará con 0,250 Bitone Node, un equivalente a 100 dólares a precio de preventa.
 
 Se repartirán un máximo de 100 bitone node durante todo el evento, un equivalente a 40.000 dólares a precio de preventa.
 
@@ -216,7 +216,7 @@ def register(bot, update):
     chat = update.message.chat.type
 
     if chat != "private":
-        msg = bot.send_message(chat_id=chat_id, text="Go talk to the bot @bitone\_network\_bot to start the registration process.", parse_mode="Markdown")
+        msg = bot.send_message(chat_id=chat_id, text="Go to the bot @bitone\_network\_bot and start a conversation to begin the registration process.", parse_mode="Markdown")
 
         # Queue for deletion
         JQ.run_once(deleteMsg, 10, context=[chat_id, msg.message_id])
@@ -266,7 +266,7 @@ def registro(bot, update):
     chat = update.message.chat.type
 
     if chat != "private":
-        msg = bot.send_message(chat_id=chat_id, text="Ve con el bot @bitone\_network\_bot para iniciar el registro", parse_mode="Markdown")
+        msg = bot.send_message(chat_id=chat_id, text="Ve con el bot @bitone\_network\_bot e inicia una conversación para empezar con el registro", parse_mode="Markdown")
 
         # Queue for deletion
         JQ.run_once(deleteMsg, 10, context=[chat_id, msg.message_id])
@@ -348,7 +348,7 @@ def parsing(bot, update):
                             if userId != users[username]["user_id"]:
                                 JQ.run_once(deleteMsg, 5, context=[chat_id, msgId])
 
-                        guardarInvitacion(bot, chat_id, userId, username, inviteCode)
+                        guardarInvitacion(bot, chat_id, userId, username, inviteCode, msgId)
                     else:
                         msg = bot.send_message(chat_id=chat_id, text="No podemos procesar la invitación hasta que tu cuenta tenga un nombre de usuario. Puedes ponerte uno en la configuración de Telegram bajo el campo llamado 'username'.")
 
@@ -370,7 +370,7 @@ def parsing(bot, update):
                             if userId != users[username]["user_id"]:
                                 JQ.run_once(deleteMsg, 5, context=[chat_id, msgId])
 
-                        storeInvite(bot, chat_id, userId, username, inviteCode)
+                        storeInvite(bot, chat_id, userId, username, inviteCode, msgId)
                     else:
                         msg = bot.send_message(chat_id=chat_id, text="We can't process the invitation while your account has no username. You can assing one for yourself in Telegram settings.")
 
@@ -424,7 +424,6 @@ def habilitarUsuario(bot, chat_id, username):
     if username in registeredUsers:
         codigo = generarToken()
         users[username]["invitationCode"] = codigo
-        users[username]["invitedUsers"] = "0"
         users[username]["enabled"] = True
         bot.send_message(chat_id=users[username]["user_id"], text="Tu código de invitación es: " + codigo + ". \n \n El usuario que invites deberá usar el hashtag #invitación más este código al entrar al [grupo oficial de Bitone Network](https://t.me/Bitone_Network) para completar la invitación.\n\nEste código de invitación es solamente válido para el grupo oficial y *no debe usarse* en el grupo de Bounty.\n\n A continuación se te enviará un mensaje ya formateado que cómodamente puedes reenviar a tus invitados, y que a su vez ellos puedan reenviar o copiar/pegar en el grupo de *Bitone Network* a su ingreso.", parse_mode="Markdown")
         bot.send_message(chat_id=users[username]["user_id"], text="#invitación " + codigo)
@@ -446,7 +445,6 @@ def enableUser(bot, chat_id, username):
     if username in registeredUsers:
         codigo = generarToken()
         users[username]["invitationCode"] = codigo
-        users[username]["invitedUsers"] = "0"
         users[username]["enabled"] = True
         bot.send_message(chat_id=users[username]["user_id"], text="Your invite code is: " + codigo + ". \n \nThe user you bring will have to use the hashtag #invite plus this code in Bitone Network's [official Telegram group](https://t.me/Bitone_Network) to count the invite as valid.\n\nThis invite code only works in the official group and *should not be used* in the Bounty group.\n\nWe will send you a message with the right formatting that you can forward to your guests, and they can later resend or copy/paste in *Bitone Network's* official group when they come in.")
         bot.send_message(chat_id=users[username]["user_id"], text="#invite " + codigo)
@@ -469,7 +467,7 @@ def myId(bot, update):
 
     JQ.run_once(deleteMsg, 10, context=[update.message.chat_id, msg.message_id])
 
-def storeInvite(bot, chat_id, userId, username, inviteCode):
+def storeInvite(bot, chat_id, userId, username, inviteCode, msgId):
     global chatData
     global users
     global adminsIds
@@ -518,6 +516,8 @@ def storeInvite(bot, chat_id, userId, username, inviteCode):
                     updateKnownUsers()
             else:
                 pass
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 15, context=[chat_id, msgId])
 
 
 def guardarInvitacion(bot, chat_id, userId, username, inviteCode):
@@ -569,6 +569,9 @@ def guardarInvitacion(bot, chat_id, userId, username, inviteCode):
                     updateKnownUsers()
             else:
                 pass
+
+    # Queue for deletion
+    JQ.run_once(deleteMsg, 15, context=[chat_id, msgId])
 
 
 def showUsers(bot, update):
@@ -897,15 +900,19 @@ def codigo(bot, update):
     user_id = update.message.from_user.id
     username = update.message.from_user.username
     msgId = update.message.message_id
+    codigo = ""
 
-    codigo = "#invitación " + users[username]["invitationCode"]
+    if username in users.keys():
+        codigo = "#invitación " + users[username]["invitationCode"]
 
-    if str(chat_id) == "-1001340675042":
-        bot.send_message(chat_id=user_id, text="Este es tu código de invitación:", parse_mode="Markdown")
-        bot.send_message(chat_id=user_id, text=codigo, parse_mode="Markdown")
+        if str(chat_id) == "-1001340675042":
+            bot.send_message(chat_id=user_id, text="Este es tu código de invitación:", parse_mode="Markdown")
+            bot.send_message(chat_id=user_id, text=codigo, parse_mode="Markdown")
 
-        # Deletion queue
-        JQ.run_once(deleteMsg, 10, context=[chat_id, msgId])
+            # Deletion queue
+            JQ.run_once(deleteMsg, 10, context=[chat_id, msgId])
+        else:
+            pass
     else:
         pass
 
@@ -916,17 +923,21 @@ def code(bot, update):
     user_id = update.message.from_user.id
     username = update.message.from_user.username
     msgId = update.message.message_id
+    codigo = ""
 
-    codigo = "#invite " + users[username]["invitationCode"]
+    if username in users.keys():
+        codigo = "#invite " + users[username]["invitationCode"]
 
-    if str(chat_id) == "-1001340675042":
-        bot.send_message(chat_id=user_id, text="This is your invite code:", parse_mode="Markdown")
-        bot.send_message(chat_id=user_id, text=codigo, parse_mode="Markdown")
+        if str(chat_id) == "-1001340675042":
+            bot.send_message(chat_id=user_id, text="This is your invite code:", parse_mode="Markdown")
+            bot.send_message(chat_id=user_id, text=codigo, parse_mode="Markdown")
 
-        # Deletion queue
-        JQ.run_once(deleteMsg, 10, context=[chat_id, msgId])
+            # Deletion queue
+            JQ.run_once(deleteMsg, 10, context=[chat_id, msgId])
+        else:
+            pass
     else:
-        print("chat id not working")
+        pass
 
 
 #Passing handlers to the dispatcher
