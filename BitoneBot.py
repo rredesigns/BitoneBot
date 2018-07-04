@@ -42,7 +42,7 @@ users = {
             "user_id": "user_id",
             "enabled": False,
             "invitationCode": "CS6GDEV9",
-            "invitedUsers": ["@user1", "@user2", "@user3"],
+            "invitedUsers": ["@user1", "@user2", "@user3"]
             }
         }
 
